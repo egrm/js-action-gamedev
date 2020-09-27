@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>sprite-based gamedev</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+		}
+
+		canvas {
+			display: block;
+			image-rendering: -moz-crisp-edges;
+			image-rendering: -webkit-crisp-edges;
+			image-rendering: pixelated;
+			/* image-rendering: crisp-edges; */
+		}
+	</style>
+</head>
+
+<body>
+	<canvas id="game-canvas"></canvas>
+
+	<script src="quadtree.js"></script>
+	<script src="utils.js"></script>
+	<script src="namegen.js"></script>
+	<script src="engine.js"></script>
+	<script src="terrain.js"></script>
+	<script src="player.js"></script>
+	<script src="game.js"></script>
+</body>
+
+</html>
