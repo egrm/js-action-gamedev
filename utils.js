@@ -131,3 +131,9 @@ function uuid() {
   }
   return uuid;
 }
+
+const objectJSONDiff = (first, second) => {
+  //  it's horrible i know
+  
+  return JSON.stringify(first) === JSON.stringify(second);
+}

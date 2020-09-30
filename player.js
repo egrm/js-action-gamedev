@@ -119,8 +119,8 @@ class Creature extends Entity {
   }
 
   dealDamage(damage) {
+    // console.log(this.health, damage);
     this.health = Math.max(0, this.health - damage);
-    console.log(this.health);
   }
 
   get isDead() {
@@ -129,9 +129,22 @@ class Creature extends Entity {
 }
 
 class Player extends Creature {
+  constructor(data) {
+    super(data);
+
+    this._infoUI = new PlayerUI(this);
+  }
+
+  get healthInPercent() {
+    const onePercent = Player.MAX_HEALTH / 100;
+    return this.health / onePercent;
+  }
+
   update(delta) {
     // assume the char is idle and let actions below state otherwise
     super.update(delta);
+
+    this._infoUI.update(this);
 
     const deltaSpeed = delta * this.speed;
 
@@ -215,13 +228,18 @@ class Player extends Creature {
 
     crosshair.render();
   }
+
+  static get MAX_HEALTH() {
+    return 100;
+  }
 };
 
 const player = new Player({
+  health: Player.MAX_HEALTH,
+  height: 16,
   name: 'necromancer',
-  health: 100,
   speed: 120,
-  height: 69,
+  width: 16,
   x: canvas.width / 2,
   y: canvas.height / 2,
   center: new v2({x: 9, y: 12}),
@@ -285,12 +303,14 @@ class Enemy extends Creature {
 const spawnEnemy = () => {
   const enemy = new Enemy({
     damage: 10,
+    health: 70,
+    height: 16,
     name: 'imp',
     speed: 80,
-    height: 69,
+    width: 16,
     //  maybe that will work
     x: randomInt(0, canvas.width / PIXELART_SCALE_FACTOR),
-    y: randomInt(0, (canvas.height * 2) / PIXELART_SCALE_FACTOR),
+    y: randomInt(0, canvas.height / PIXELART_SCALE_FACTOR),
     center: new v2({x: 9, y: 12}),
     frames: {
       [CHARACTER_STATES.EXPLODE]: [...new Array(8)].map((v,index) => (`assets/dungeon/imp_explosion_anim_f${index}.png`)),
@@ -302,7 +322,7 @@ const spawnEnemy = () => {
   enemies.set(enemy.uid, enemy);
 }
 
-const ENEMY_COUNT = 20;
+const ENEMY_COUNT = 1;
 const enemies = new Map();
 [...new Array(ENEMY_COUNT)].forEach((v, index) => 
   {

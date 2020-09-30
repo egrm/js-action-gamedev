@@ -10,6 +10,19 @@
 			padding: 0;
 		}
 
+    @font-face {
+      font-family: 'DungeonFont';
+      src:  url('assets/DungeonFont.woff2') format('woff2'),
+            url('assets/DungeonFont.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    body {
+      font: 32px 'DungeonFont';
+    }
+
 		canvas {
 			display: block;
 			image-rendering: -moz-crisp-edges;
@@ -28,6 +41,7 @@
 	<script src="namegen.js"></script>
 	<script src="engine.js"></script>
 	<script src="terrain.js"></script>
+	<script src="ui.js"></script>
 	<script src="player.js"></script>
 	<script src="game.js"></script>
 </body>

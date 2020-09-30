@@ -1,4 +1,5 @@
-const ENEMY_SPAWN_PROBABILITY = 0.01;
+// const ENEMY_SPAWN_PROBABILITY = 0.05;
+const ENEMY_SPAWN_PROBABILITY = 0.00;
 
 const projectiles = {
   map: {},
@@ -19,7 +20,57 @@ const projectiles = {
   }
 };
 
+const overlaps = (a, b) => {
+	if (a.x >= b.x + b.width || b.x >= a.x + a.width) return false;
+	if (a.y >= b.y + b.height || b.y >= a.y + a.height) return false;
+	return true;
+};
+
+const checkProjectiles = () => {
+  const bounds = {
+    height: Game.canvasHeight,
+    width: Game.canvasWidth,
+    x: 0,
+    y: 0
+  }
+  const qt = new QuadTree(bounds, false);
+  Object.values(projectiles.map).forEach(p => {
+    qt.insert({
+      id: p.id,
+      height: p.size,
+      width: p.size,
+      x: p.position.x,
+      y: p.position.y
+    });
+  });
+
+  const deleteBulletIds = new Set();
+  enemies.forEach(enemy => {
+    const bullets = qt.retrieve({
+      height: enemy.height,
+      width: enemy.width,
+      x: enemy.x,
+      y: enemy.y
+    });
+    
+    if (bullets.length) {
+      bullets.forEach(bullet => {
+        if (overlaps(bullet, enemy)) {
+          deleteBulletIds.add(bullet.id);
+          enemy.dealDamage(projectiles.map[bullet.id].damage);
+        }
+      });
+    }
+  });
+
+  deleteBulletIds.forEach(bulletId => {
+    projectiles.delete({ id: bulletId });
+  });
+};
+
 const Game = {
+  canvasHeight: 512,
+  canvasWidth: 512,
   frameCount: 0,
 
   resize() {
@@ -54,6 +105,8 @@ const Game = {
       console.log('enemy spawn');
     }
 
+    checkProjectiles();
+
     enemies.forEach(enemy => {
       enemy.update(delta);
       if (enemy.isDead) {
@@ -70,6 +123,7 @@ const Game = {
       const projectile = {
         id: uuid(),
         creatureId: player.uid,
+        damage: 50,
         size: 6,
         speed: 200,
 
@@ -131,7 +185,7 @@ const Game = {
 
   tick(elapsed) {
     // clear previous frame
-    this.context.clearRect(0, 0, 512, 512);
+    this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
 
     // compute delta time in seconds -- also cap it
     let delta = (elapsed - this._previousElapsed) / 1000;
