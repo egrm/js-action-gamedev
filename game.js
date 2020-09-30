@@ -1,5 +1,4 @@
-// const ENEMY_SPAWN_PROBABILITY = 0.05;
-const ENEMY_SPAWN_PROBABILITY = 0.00;
+const ENEMY_SPAWN_PROBABILITY = 0.02;
 
 const projectiles = {
   map: {},
