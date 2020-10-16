@@ -1,49 +1,54 @@
-const cols = 12;
-const rows = 12;
+const tsize = 16;
+const cols = Math.ceil(window.innerWidth / tsize);
+const rows = Math.ceil(window.innerHeight / tsize);
+
+const tiles = Object.fromEntries(
+  // floor-1, floor-2 ... floor-8
+  [...new Array(8)].map((v, index) =>  {
+    const num = index + 1;
+
+    return [
+      `floor-${num}`,
+      `./assets/dungeon/floor_${num}.png`
+    ];
+  })
+);
+
 const Terrain = {
+  tiles,
+  load() {
+    return Promise.all(Object.entries(this.tiles).map(([key, path]) => Loader.loadImage(key, path)));
+  },
+  tsize,
   cols,
   rows,
-  tsize: 32,
-  imageHeight: 9,
-  imageWidth: 20,
+  // imageHeight: 9,
+  // imageWidth: 20,
   get width() {
     return this.rows * this.tsize;
   },
   get height() {
     return this.cols * this.tsize;
   },
-  /*
 
-  Terrain tile codes reference:
-
-  41 - grass
-
-  42 - water
-
-  43 - ground
-
-  44 - wall
-
-
-  */
-  layers: [
-    randomTerrain(cols, rows, 4, [41, 42, 43, 44], [0.4, 0.1, 0.4, 0.1], 'manhattan')
-    /*
-    [
-      42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42,
-      42, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 42,
-      42, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 42,
-      42, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 42,
-      42, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 42,
-      42, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 42,
-      42, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 42,
-      42, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 42,
-      42, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 42,
-      42, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 42,
-      42, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 42,
-      42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42,
-    ]
-    */
+   layers: [
+      randomTerrain(cols, rows, 4, Object.keys(tiles), [0.4, 0.1, 0.4, 0.1], 'manhattan')
+      /*
+      [
+        42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42,
+        42, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 42,
+        42, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 42,
+        42, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 42,
+        42, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 42,
+        42, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 42,
+        42, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 42,
+        42, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 42,
+        42, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 42,
+        42, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 42,
+        42, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 42,
+        42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42,
+      ]
+      */
   ],
   getTile(layer, col, row) {
     return this.layers[layer][row * this.cols + col];
@@ -81,21 +86,19 @@ const Terrain = {
       for (let c = 0; c < Terrain.cols; c++) {
         for (let r = 0; r < Terrain.rows; r++) {
           let tile = Terrain.getTile(layerIndex, c, r);
-          if (tile !== 0) { // 0 => empty tile
-            const sourceX = ((tile - 1) % Terrain.imageWidth) * Terrain.tsize;
-            const sourceY = Math.floor((tile - 1) / Terrain.imageWidth) * Terrain.tsize;
-            context.drawImage(
-              Loader.getImage("terrain"), // image
-              sourceX, // source x
-              sourceY, // source y
-              Terrain.tsize, // source width
-              Terrain.tsize, // source height
-              c * Terrain.tsize, // target x
-              r * Terrain.tsize, // target y
-              Terrain.tsize, // target width
-              Terrain.tsize // target height
-            );
-          }
+          if (!tile) return;
+
+          // const sourceX = ((tile - 1) % Terrain.imageWidth) * Terrain.tsize;
+          // const sourceY = Math.floor((tile - 1) / Terrain.imageWidth) * Terrain.tsize; 
+
+          context.drawImage(
+            Loader.getImage(tile), // image
+            TERRAIN_SCALE_FACTOR * c * Terrain.tsize, // target x
+            TERRAIN_SCALE_FACTOR * r * Terrain.tsize, // target y
+            TERRAIN_SCALE_FACTOR * Terrain.tsize,
+            TERRAIN_SCALE_FACTOR * Terrain.tsize,
+          );
+
         } // \rows
       } // \cols
 

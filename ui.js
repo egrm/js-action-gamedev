@@ -4,8 +4,8 @@ const UI_LAYER = document.createElement('div');
 UI_LAYER.setAttribute('style', `
   position: absolute;
 
-  width: ${Terrain.width * PIXELART_SCALE_FACTOR}px;
-  height: ${Terrain.height * PIXELART_SCALE_FACTOR}px;
+  width: ${window.innerWidth}px;
+  height: ${window.innerHeight}px;
 
   top: ${canvas.offsetTop}px;
   left: ${canvas.offsetLeft}px;
@@ -37,6 +37,7 @@ class PlayerUI extends UIElement {
       top: 0;
       right: 0;
       padding: 0.5rem;
+      color: white;
 
       text-align: right;
     `);
@@ -74,8 +75,8 @@ class PlayerUI extends UIElement {
 
 
     return (data) => {
-      const {name, healthInPercent, centerPosition} = data;
-      nameUI.innerHTML = name;
+      const {name, healthInPercent, centerPosition,score} = data;
+      nameUI.innerHTML = score;
 
       healthBarWrapper.style.left = (centerPosition.x + healthBarOffset.x) * PIXELART_SCALE_FACTOR + 'px';
       healthBarWrapper.style.top = (centerPosition.y + healthBarOffset.y) * PIXELART_SCALE_FACTOR + 'px';

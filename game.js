@@ -1,9 +1,22 @@
-const ENEMY_SPAWN_PROBABILITY = 0.02;
+const player = new Player({
+  health: Player.MAX_HEALTH,
+  height: 16,
+  name: 'necromancer',
+  speed: 120,
+  width: 16,
+  x: canvas.width / 2,
+  y: canvas.height / 2,
+  center: new v2({x: 9, y: 12}),
+  frames: {
+    [CHARACTER_STATES.IDLE]: [...new Array(4)].map((v,index) => (`assets/dungeon/necromancer_idle_anim_f${index}.png`)),
+    [CHARACTER_STATES.MOVING]: [...new Array(4)].map((v,index) => (`assets/dungeon/necromancer_run_anim_f${index}.png`))
+  }
+});
 
 const projectiles = {
   map: {},
   push(projectile) {
-    this.map[projectile.id] = projectile;
+    this.map[projectile.uid] = projectile;
   },
   update(delta) {
     Object.values(this.map).forEach(p => p.update(delta));
@@ -11,13 +24,20 @@ const projectiles = {
   render(delta) {
     Object.values(this.map).forEach(p => p.render(delta));
   },
-  delete({id}) {
-    delete this.map[id];
+  delete({uid}) {
+    delete this.map[uid];
   },
   get length() {
     return Object.values(this.map).length;
   }
 };
+
+const enemies = new Map();
+[...new Array(ENEMY_INITIAL_COUNT)].forEach((v, index) => 
+  {
+    spawnEnemy(enemies);
+  }
+);
 
 const overlaps = (a, b) => {
 	if (a.x >= b.x + b.width || b.x >= a.x + a.width) return false;
@@ -35,7 +55,7 @@ const checkProjectiles = () => {
   const qt = new QuadTree(bounds, false);
   Object.values(projectiles.map).forEach(p => {
     qt.insert({
-      id: p.id,
+      uid: p.uid,
       height: p.size,
       width: p.size,
       x: p.position.x,
@@ -44,6 +64,7 @@ const checkProjectiles = () => {
   });
 
   const deleteBulletIds = new Set();
+
   enemies.forEach(enemy => {
     const bullets = qt.retrieve({
       height: enemy.height,
@@ -54,30 +75,42 @@ const checkProjectiles = () => {
     
     if (bullets.length) {
       bullets.forEach(bullet => {
-        if (overlaps(bullet, enemy)) {
-          deleteBulletIds.add(bullet.id);
-          enemy.dealDamage(projectiles.map[bullet.id].damage);
+        if (overlaps(bullet, enemy) && !enemy.isDying) {
+
+          deleteBulletIds.add(bullet.uid);
+
+          const bulletDamage = projectiles.map[bullet.uid].damage;
+          
+          const dealtDamage = enemy.dealDamage(bulletDamage);
+
+          player.score += dealtDamage;
         }
       });
     }
   });
 
   deleteBulletIds.forEach(bulletId => {
-    projectiles.delete({ id: bulletId });
+    projectiles.delete({ uid: bulletId });
   });
 };
 
 const Game = {
-  canvasHeight: 512,
-  canvasWidth: 512,
+  canvasHeight: window.innerHeight,
+  canvasWidth: window.innerWidth,
   frameCount: 0,
 
   resize() {
-    canvas.width = Math.floor(window.innerWidth / PIXELART_SCALE_FACTOR);
-    canvas.height = Math.floor(window.innerHeight / PIXELART_SCALE_FACTOR);
+    const h = window.innerHeight;
+    const w = window.innerWidth;
 
-    canvas.style.width = `${window.innerWidth}px`;
-    canvas.style.height = `${window.innerHeight}px`;
+    canvas.height = Math.floor(h / PIXELART_SCALE_FACTOR);
+    canvas.width = Math.floor(w / PIXELART_SCALE_FACTOR);
+
+    canvas.style.height = `${h}px`;
+    canvas.style.width = `${w}px`;
+
+    this.canvasHeight = h;
+    this.canvasWidth = w;
   },
 
   run(context) {
@@ -95,71 +128,31 @@ const Game = {
     this.frameCount += 1;
 
     player.update(delta, this.frameCount);
+
     if (player.isDead) {
       // TODO - die with dignity
     }
 
     if (Math.random() <= ENEMY_SPAWN_PROBABILITY) {
-      spawnEnemy();
-      console.log('enemy spawn');
+      spawnEnemy(enemies);
     }
 
     checkProjectiles();
 
     enemies.forEach(enemy => {
       enemy.update(delta);
+
       if (enemy.isDead) {
         enemies.delete(enemy.uid);
       }
+
     });
 
     if (
     (Input.isDown(Input.LEFT_MOUSE_BUTTON) || Input.isDown(Input.SPACE)) &&
       (this.frameCount / 2 % 4) === 0
     ) {
-      // console.log(player.centerPosition);
-
-      const projectile = {
-        id: uuid(),
-        creatureId: player.uid,
-        damage: 50,
-        size: 6,
-        speed: 200,
-
-        direction: new v2(player.direction),
-        centerPosition: new v2(player.centerPosition),
-
-        get position() {
-          return new v2({
-            x: this.centerPosition.x - this.size / 2,
-            y: this.centerPosition.y - this.size / 2,
-          });
-        },
-
-        update(delta) {
-          const deltaSpeed = delta * this.speed;
-          this.centerPosition = v2.add(this.centerPosition, v2.scale(this.direction, deltaSpeed));
-
-          // self-delete if flies off the terrain
-          const {width: terrainWidth, height: terrainHeight} = Terrain;
-          const {x: posX, y: posY} = this.position;
-
-          if (posX < 0 || posY < 0 || posX > terrainWidth || posY > terrainHeight) {
-            projectiles.delete(this);
-          }
-        },
-
-        render() {
-          context.fillRect(
-            Math.round(this.position.x),
-            Math.round(this.position.y),
-            this.size,
-            this.size
-          );
-        }
-      };
-
-      projectiles.push(projectile);
+      spawnProjectile();
     }
 
     projectiles.update(delta);
@@ -173,11 +166,10 @@ const Game = {
   },
 
   init() {
-    Input.listenForEvents(
-      [
-        Input.LEFT, Input.RIGHT, Input.UP, Input.DOWN,
-        Input.A, Input.D, Input.W, Input.S, Input.SPACE
-      ]);
+    Input.listenForEvents([
+      Input.LEFT, Input.RIGHT, Input.UP, Input.DOWN,
+      Input.A, Input.D, Input.W, Input.S, Input.SPACE
+    ]);
 
     this.resize();
   },
@@ -205,12 +197,15 @@ const Game = {
 
     enemies.forEach(enemy => enemyPromises.push(enemy.load()))
 
-    return [
+    //const projectile = Object.values(projectiles.map)[0];
 
-      Loader.loadImage('terrain', './assets/nature-summer.png'),
+    return [
+      Loader.loadImage('terrain', './assets/outdoors.png'),
+      Terrain.load(),
       player.load(),
-      ...enemyPromises
-      // Loader.loadImage('character, './assets/character.png')
+      ...enemyPromises,
+      Loader.loadImage('projectile-idle-0', './assets/projectiles/projectile-0.png'),
+      Loader.loadImage('projectile-idle-1', './assets/projectiles/projectile-1.png')
     ];
   }
 

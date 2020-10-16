@@ -137,3 +137,40 @@ const objectJSONDiff = (first, second) => {
   
   return JSON.stringify(first) === JSON.stringify(second);
 }
+
+const spawnEnemy = enemies => {
+  const enemy = new Enemy({
+    damage: 10,
+    health: 70,
+    height: 16,
+    name: 'imp',
+    speed: 80,
+    width: 16,
+    //  maybe that will work
+    x: randomInt(0, canvas.width),
+    y: randomInt(0, canvas.height),
+    center: new v2({x: 9, y: 12}),
+    frames: {
+      [CHARACTER_STATES.DYING]: [...new Array(8)].map((v,index) => (`assets/dungeon/imp_explosion_anim_f${index}.png`)),
+      [CHARACTER_STATES.IDLE]: [...new Array(4)].map((v,index) => (`assets/dungeon/imp_idle_anim_f${index}.png`)),
+      [CHARACTER_STATES.MOVING]: [...new Array(4)].map((v,index) => (`assets/dungeon/imp_run_anim_f${index}.png`))
+    }
+  });
+
+  enemies.set(enemy.uid, enemy);
+}
+
+const spawnProjectile = () => {
+  const projectile = new Projectile({
+    creature: player,
+    damage: PROJECTILE_DAMAGE,
+    height: 13,
+    name: 'projectile',
+    speed: PROJECTILE_SPEED,
+    width: 5,
+    frames: {
+      [CHARACTER_STATES.IDLE]: [...new Array(2)].map((v,index) => (`assets/projectiles/projectile-${index}.png`))
+    }
+  });
+  projectiles.push(projectile);
+}

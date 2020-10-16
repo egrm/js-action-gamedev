@@ -1,17 +1,4 @@
-const CHARACTER_STATES = {
-  DEAD: 'dead',
-  EXPLODE: 'explosion',
-  IDLE: 'idle',
-  MOVING: 'moving'
-};
-
 const DEFAULT_DIRECTION = new v2({x: 1, y: 0});
-
-const ANIMATION_SLOWDOWN = 5;
-
-const ENEMY_SENSE_DISTANCE = 100; //Infinity;
-
-const ENEMY_EXPLOSION_DISTANCE = 10;
 
 class Entity {
   constructor({name, x, y, width, height, center, direction, frames}) {
@@ -38,8 +25,8 @@ class Entity {
 
     this.uid = uuid();
 
-    this._state= CHARACTER_STATES.IDLE;
-    this._previousState= CHARACTER_STATES.IDLE;
+    this._state = CHARACTER_STATES.IDLE;
+    this._previousState = CHARACTER_STATES.IDLE;
     this._frameCount = 0;
   }
 
@@ -94,8 +81,8 @@ class Entity {
   render() {
     context.drawImage(
       this.image,
-      Math.round(this.position.x),
-      Math.round(this.position.y)
+      this.position.x,
+      this.position.y
     );
   }
 }
@@ -120,11 +107,36 @@ class Creature extends Entity {
 
   dealDamage(damage) {
     // console.log(this.health, damage);
+    const dealtDamage = Math.min(damage, this.health);
     this.health = Math.max(0, this.health - damage);
+    return dealtDamage;
+  }
+
+  get isDying() {
+    return this.state === CHARACTER_STATES.DYING;
   }
 
   get isDead() {
-    return (this.health <= 0) || (this.state === CHARACTER_STATES.DEAD);
+    return this.state === CHARACTER_STATES.DEAD;
+  }
+
+  render() {
+    const isFacingLeft = (this.direction.x < 0);
+    const x = Math.round(this.position.x);
+    const posX = isFacingLeft ? -x - this.width : x;
+    const posY = Math.round(this.position.y);
+    if (isFacingLeft) {
+      context.save();
+      context.scale(-1, 1);
+    }
+    context.drawImage(
+      this.image,
+      posX,
+      posY
+    );
+    if (isFacingLeft) {
+      context.restore();
+    }
   }
 }
 
@@ -132,6 +144,7 @@ class Player extends Creature {
   constructor(data) {
     super(data);
 
+    this.score = data.score || 0;
     this._infoUI = new PlayerUI(this);
   }
 
@@ -234,28 +247,15 @@ class Player extends Creature {
   }
 };
 
-const player = new Player({
-  health: Player.MAX_HEALTH,
-  height: 16,
-  name: 'necromancer',
-  speed: 120,
-  width: 16,
-  x: canvas.width / 2,
-  y: canvas.height / 2,
-  center: new v2({x: 9, y: 12}),
-  frames: {
-    [CHARACTER_STATES.IDLE]: [...new Array(4)].map((v,index) => (`assets/dungeon/necromancer_idle_anim_f${index}.png`)),
-    [CHARACTER_STATES.MOVING]: [...new Array(4)].map((v,index) => (`assets/dungeon/necromancer_run_anim_f${index}.png`))
-  }
-});
-
 class Enemy extends Creature {
   constructor(data) {
     super(data);
   }
 
-  get isExploding() {
-    return (this.state === CHARACTER_STATES.EXPLODE);
+
+  die() {
+    this.state = CHARACTER_STATES.DYING;
+    this._explosionStartFrame = this._frameCount;
   }
 
   update(delta) {
@@ -263,21 +263,25 @@ class Enemy extends Creature {
 
     const deltaSpeed = this.speed * delta;
 
-    // GO MY (S)IMPSt
+    // GO MY (S)IMPS
     const vectorToPlayer = v2.subtract(player.position, this.position);
     const playerDistance = vectorToPlayer.length;
 
+    if (this.health <= 0 && !this.isDying) {
+      this.die();
+    }
+
     if (!this.isDead) {
-      if (this.isExploding) {
+      if (this.isDying) {
+        // play the explosion animation
         const frameDiff = this._frameCount - this._explosionStartFrame;
-        if (frameDiff > this.frames[CHARACTER_STATES.EXPLODE].length * ANIMATION_SLOWDOWN) {
-          this.health = 0;
+        if (frameDiff > this.frames[CHARACTER_STATES.DYING].length * ANIMATION_SLOWDOWN) {
+          this.state = CHARACTER_STATES.DEAD;
         }
       }
-      else if (playerDistance <= ENEMY_EXPLOSION_DISTANCE) {
-        this.state = CHARACTER_STATES.EXPLODE;
-        this._explosionStartFrame = this._frameCount;
+      else if (playerDistance <= ENEMY_EXPLOSION_DISTANCE && this.state !== CHARACTER_STATES.DYING) {
         player.dealDamage(this.damage);
+        this.die();
       }
       else if (playerDistance <= ENEMY_SENSE_DISTANCE) {
         this.state = CHARACTER_STATES.MOVING;
@@ -300,32 +304,52 @@ class Enemy extends Creature {
   }
 }
 
-const spawnEnemy = () => {
-  const enemy = new Enemy({
-    damage: 10,
-    health: 70,
-    height: 16,
-    name: 'imp',
-    speed: 80,
-    width: 16,
-    //  maybe that will work
-    x: randomInt(0, canvas.width / PIXELART_SCALE_FACTOR),
-    y: randomInt(0, canvas.height / PIXELART_SCALE_FACTOR),
-    center: new v2({x: 9, y: 12}),
-    frames: {
-      [CHARACTER_STATES.EXPLODE]: [...new Array(8)].map((v,index) => (`assets/dungeon/imp_explosion_anim_f${index}.png`)),
-      [CHARACTER_STATES.IDLE]: [...new Array(4)].map((v,index) => (`assets/dungeon/imp_idle_anim_f${index}.png`)),
-      [CHARACTER_STATES.MOVING]: [...new Array(4)].map((v,index) => (`assets/dungeon/imp_run_anim_f${index}.png`))
-    }
-  });
+class Projectile extends Entity {
+  constructor(data) {
+    super(data);
+    this.creature = data.creature;
+    this.damage = data.damage || PROJECTILE_DAMAGE;
+    this.speed = data.speed || PROJECTILE_SPEED;
+    this.direction = data.creature.direction;
+    this.center = new v2({x: this.size / 2, y: this.size / 2});
 
-  enemies.set(enemy.uid, enemy);
-}
-
-const ENEMY_COUNT = 1;
-const enemies = new Map();
-[...new Array(ENEMY_COUNT)].forEach((v, index) => 
-  {
-    spawnEnemy();
+    const moveBy = this.size / 2;
+    this.position = v2.subtract(data.creature.centerPosition, { x: moveBy, y: moveBy });
   }
-);
+
+  get creatureId() {
+    return this.creature.uid;
+  }
+
+  get size() {
+    return Math.min(this.width, this.height);
+  }
+
+  // TODO: Terrain, projectiles global variables
+  update(delta) {
+    super.update(delta);
+
+    const deltaSpeed = delta * this.speed;
+    this.position = v2.add(this.position, v2.scale(this.direction, deltaSpeed));
+
+    // self-delete if flies off the terrain
+    const { width: terrainWidth, height: terrainHeight } = Terrain;
+
+    if (this.position.x < 0 || this.position.y < 0 || this.position.x > terrainWidth || this.position.y > terrainHeight) {
+      projectiles.delete(this);
+    }
+  }
+
+  render() {
+    context.save();
+    context.translate(this.centerPosition.x, this.centerPosition.y);
+    const angle = Math.atan2(this.direction.y, this.direction.x) + PROJECTILE_ROTATION;
+    context.rotate(angle);
+    context.drawImage(
+      this.image,
+      -this.center.x,
+      -this.center.y
+    );
+    context.restore();
+  }
+}
