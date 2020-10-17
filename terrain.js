@@ -25,10 +25,10 @@ const Terrain = {
   // imageHeight: 9,
   // imageWidth: 20,
   get width() {
-    return this.rows * this.tsize;
+    return this.cols * this.tsize;
   },
   get height() {
-    return this.cols * this.tsize;
+    return this.rows * this.tsize;
   },
 
    layers: [
