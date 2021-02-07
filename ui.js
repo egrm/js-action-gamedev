@@ -62,6 +62,7 @@ class PlayerUI extends UIElement {
         background: #111;
         padding: 3px;
         opacity: 0.5;
+        display: block;
     `);
     UI_LAYER.appendChild(healthBarWrapper);
 
@@ -74,12 +75,21 @@ class PlayerUI extends UIElement {
     healthBarWrapper.appendChild(healthBar);
 
 
-    return (data) => {
-      const {name, healthInPercent, centerPosition,score} = data;
+    return (player) => {
+      const {name, healthInPercent, centerPosition,score, isDead} = player;
+
       nameUI.innerHTML = score;
 
       healthBarWrapper.style.left = (centerPosition.x + healthBarOffset.x) * PIXELART_SCALE_FACTOR + 'px';
       healthBarWrapper.style.top = (centerPosition.y + healthBarOffset.y) * PIXELART_SCALE_FACTOR + 'px';
+
+      healthBarWrapper.style.display = 'none';
+
+      if (isDead) {
+        healthBarWrapper.style.display = 'none';
+      } else {
+        healthBarWrapper.style.display = 'block';
+      }
 
       healthBar.style.width = `${healthInPercent}%`;
     }

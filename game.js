@@ -9,7 +9,8 @@ const player = new Player({
   center: new v2({x: 9, y: 12}),
   frames: {
     [CHARACTER_STATES.IDLE]: [...new Array(4)].map((v,index) => (`assets/dungeon/necromancer_idle_anim_f${index}.png`)),
-    [CHARACTER_STATES.MOVING]: [...new Array(4)].map((v,index) => (`assets/dungeon/necromancer_run_anim_f${index}.png`))
+    [CHARACTER_STATES.MOVING]: [...new Array(4)].map((v,index) => (`assets/dungeon/necromancer_run_anim_f${index}.png`)),
+    [CHARACTER_STATES.DEAD]: [...new Array(4)].map((v,index) => (`assets/dungeon/tiny_zombie_idle_anim_f${index}.png`)),
   }
 });
 
