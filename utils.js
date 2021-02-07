@@ -139,25 +139,39 @@ const objectJSONDiff = (first, second) => {
 }
 
 const spawnEnemy = enemies => {
-  const enemy = new Enemy({
-    damage: 10,
-    health: 70,
-    height: 16,
-    name: 'imp',
-    speed: 80,
-    width: 16,
-    //  maybe that will work
-    x: randomInt(0, canvas.width),
-    y: randomInt(0, canvas.height),
-    center: new v2({x: 9, y: 12}),
-    frames: {
-      [CHARACTER_STATES.DYING]: [...new Array(8)].map((v,index) => (`assets/dungeon/imp_explosion_anim_f${index}.png`)),
-      [CHARACTER_STATES.IDLE]: [...new Array(4)].map((v,index) => (`assets/dungeon/imp_idle_anim_f${index}.png`)),
-      [CHARACTER_STATES.MOVING]: [...new Array(4)].map((v,index) => (`assets/dungeon/imp_run_anim_f${index}.png`))
-    }
-  });
+  while (true) {
+    const x = randomInt(0, canvas.width);
+    const y = randomInt(0, canvas.height);
 
-  enemies.set(enemy.uid, enemy);
+    const t = new v2({ x, y });
+    const vectorToPlayer = v2.subtract(player.position, t);
+    const playerDistance = vectorToPlayer.length;
+
+    if (playerDistance >= ENEMY_SPAWN_MIN_DISTANCE) {
+      const enemy = new Enemy({
+        damage: 10,
+        health: 70,
+        height: 16,
+        mute: true,
+        name: 'imp',
+        speed: 80,
+        width: 16,
+        //  maybe that will work
+        x,
+        y,
+        center: new v2({x: 9, y: 12}),
+        frames: {
+          [CHARACTER_STATES.DYING]: [...new Array(8)].map((v,index) => (`assets/dungeon/imp_explosion_anim_f${index}.png`)),
+          [CHARACTER_STATES.IDLE]: [...new Array(4)].map((v,index) => (`assets/dungeon/imp_idle_anim_f${index}.png`)),
+          [CHARACTER_STATES.MOVING]: [...new Array(4)].map((v,index) => (`assets/dungeon/imp_run_anim_f${index}.png`))
+        }
+      });
+
+      enemies.set(enemy.uid, enemy);
+
+      break;
+    }
+  }
 }
 
 const spawnProjectile = () => {
@@ -173,4 +187,15 @@ const spawnProjectile = () => {
     }
   });
   projectiles.push(projectile);
+}
+
+const playCopyOfSound = sound => {
+  if (!sound) {
+    return;
+  }
+  const soundCopy = sound.cloneNode();
+  soundCopy.addEventListener('ended', function() {
+    delete soundCopy;
+  }, false);
+  soundCopy.play();
 }

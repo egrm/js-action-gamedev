@@ -4,7 +4,8 @@ const context = canvas.getContext("2d");
 // Asset loader
 
 const Loader = {
-  images: {}
+  images: {},
+  sounds: {}
 };
 
 Loader.loadImage = function (key, src) {
@@ -25,8 +26,29 @@ Loader.loadImage = function (key, src) {
   return d;
 };
 
+Loader.loadSound = function (key, src) {
+  const audio = new Audio();
+  const d = new Promise(function (resolve, reject) {
+    audio.addEventListener('loadeddata', function () {
+      this.sounds[key] = audio;
+      resolve(audio);
+    }.bind(this), false);
+
+    audio.addEventListener('error', function () {
+      reject('Could not load audio: ' + src);
+    }.bind(this), false);
+  }.bind(this));
+
+  audio.src = src;
+  return d;
+};
+
 Loader.getImage = function (key) {
   return (key in this.images) ? this.images[key] : null;
+};
+
+Loader.getSound = function (key) {
+  return (key in this.sounds) ? this.sounds[key] : null;
 };
 
 // Input manager

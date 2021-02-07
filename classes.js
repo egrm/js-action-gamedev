@@ -1,13 +1,15 @@
 const DEFAULT_DIRECTION = new v2({x: 1, y: 0});
 
 class Entity {
-  constructor({name, x, y, width, height, center, direction, frames}) {
+  constructor({name, x, y, mute, width, height, center, direction, frames}) {
     this.name = name;
 
     this.x = x;
     this.y = y;
     this.width = width;
     this.height = height;
+
+    this.mute = mute || false;
 
     if (direction) {
       this.direction  = direction;
@@ -153,11 +155,20 @@ class Player extends Creature {
     return this.health / onePercent;
   }
 
+  die() {
+    this.state = CHARACTER_STATES.DEAD;
+  }
+
   update(delta) {
     // assume the char is idle and let actions below state otherwise
     super.update(delta);
 
     this._infoUI.update(this);
+
+    if (this.health <= 0) {
+      this.die();
+      return;
+    }
 
     const deltaSpeed = delta * this.speed;
 
@@ -256,6 +267,10 @@ class Enemy extends Creature {
   die() {
     this.state = CHARACTER_STATES.DYING;
     this._explosionStartFrame = this._frameCount;
+    if (!this.mute) {
+      const sound = Loader.getSound('explosion');
+      playCopyOfSound(sound);
+    }
   }
 
   update(delta) {
@@ -315,6 +330,11 @@ class Projectile extends Entity {
 
     const moveBy = this.size / 2;
     this.position = v2.subtract(data.creature.centerPosition, { x: moveBy, y: moveBy });
+
+    if (!this.mute) {
+      const sound = Loader.getSound('laser-sound');
+      playCopyOfSound(sound);
+    }
   }
 
   get creatureId() {

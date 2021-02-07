@@ -131,6 +131,8 @@ const Game = {
 
     if (player.isDead) {
       // TODO - die with dignity
+      const wastedSound = Loader.getSound('wasted');
+      wastedSound.play();
     }
 
     if (Math.random() <= ENEMY_SPAWN_PROBABILITY) {
@@ -205,7 +207,10 @@ const Game = {
       player.load(),
       ...enemyPromises,
       Loader.loadImage('projectile-idle-0', './assets/projectiles/projectile-0.png'),
-      Loader.loadImage('projectile-idle-1', './assets/projectiles/projectile-1.png')
+      Loader.loadImage('projectile-idle-1', './assets/projectiles/projectile-1.png'),
+      Loader.loadSound('explosion', './assets/sound/explosion.mp3'),
+      Loader.loadSound('laser-sound', './assets/sound/laser2.mp3'),
+      Loader.loadSound('wasted', './assets/sound/wasted.mp3')
     ];
   }
 
