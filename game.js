@@ -101,8 +101,8 @@ const Game = {
   frameCount: 0,
 
   resize() {
-    const h = window.innerHeight;
-    const w = window.innerWidth;
+    const h = 720;
+    const w = 720;
 
     canvas.height = Math.floor(h / PIXELART_SCALE_FACTOR);
     canvas.width = Math.floor(w / PIXELART_SCALE_FACTOR);
