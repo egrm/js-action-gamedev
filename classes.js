@@ -330,6 +330,7 @@ class Projectile extends Entity {
 
     const moveBy = this.size / 2;
     this.position = v2.subtract(data.creature.centerPosition, { x: moveBy, y: moveBy });
+    this.startPosition = new v2(this.position);
 
     if (!this.mute) {
       const sound = Loader.getSound('laser-sound');
@@ -354,6 +355,11 @@ class Projectile extends Entity {
 
     // self-delete if flies off the terrain
     const { width: terrainWidth, height: terrainHeight } = Terrain;
+
+    const distanceTravelled = v2.subtract(this.position, this.startPosition).length;
+    if (distanceTravelled >= PROJECTILE_MAX_DISTANCE) {
+      projectiles.delete(this);
+    }
 
     if (this.position.x < 0 || this.position.y < 0 || this.position.x > terrainWidth || this.position.y > terrainHeight) {
       projectiles.delete(this);
