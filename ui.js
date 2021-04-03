@@ -103,3 +103,56 @@ class PlayerUI extends UIElement {
 
   }
 }
+
+class Dialog extends UIElement {
+  constructor(dialogRoot) {
+    super(dialogRoot);
+
+    this.dialogData = dialogRoot;
+  }
+
+  keyPressHandler(event) {
+    switch (event.key) {
+      case 'ArrowLeft':
+        this.rollOption(-1);
+      break;
+      case 'ArrowRight':
+        this.rollOption(1);
+      break;
+      case 'Enter':
+        this.selectOption();
+      break;
+    }
+  }
+
+  rollOption(n) {
+  }
+
+  selectOption() {
+  }
+
+  _initDomInstance() {
+    this.element = document.createElement('div');
+
+    this._boundHandler = this.keyPressHandler.bind(this);
+    document.addEventListener('keydown', this._boundHandler);
+  }
+
+  show() {
+    Game.pause();
+    this._initDomInstance();
+  }
+
+  hide() {
+    Game.resume();
+
+    if (this.element) {
+      this.element.parentNode.removeChild(this.element);
+      this.element = null;
+    }
+
+    if (this._boundHandler) {
+      document.removeEventListener('keyPress', this._boundHandler);
+    }
+  }
+}
