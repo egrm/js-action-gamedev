@@ -79,10 +79,10 @@ Input.listenForEvents = function (keys) {
   window.addEventListener('keydown', this._onKeyDown.bind(this));
   window.addEventListener('keyup', this._onKeyUp.bind(this));
 
-  canvas.addEventListener('mousemove', this._onMouseMove.bind(this));
+  window.addEventListener('mousemove', this._onMouseMove.bind(this));
   
-  canvas.addEventListener('mousedown', this._onMouseDown.bind(this));
-  canvas.addEventListener('mouseup', this._onMouseUp.bind(this));
+  window.addEventListener('mousedown', this._onMouseDown.bind(this));
+  window.addEventListener('mouseup', this._onMouseUp.bind(this));
 
   keys.forEach(function (key) {
     this._keys[key] = false;
@@ -116,7 +116,7 @@ Input.isDown = function (keyCode) {
 Input._onMouseMove = function (event) {
   const {clientX: x, clientY: y} = event;
 
-  Input.mousePosition = new v2({x: x / PIXELART_SCALE_FACTOR, y: y / PIXELART_SCALE_FACTOR});
+  Input.mousePosition = new v2({x: (x - canvas.offsetLeft) / PIXELART_SCALE_FACTOR, y: (y - canvas.offsetTop) / PIXELART_SCALE_FACTOR});
 }
 
 Input._onMouseDown = function (event) {

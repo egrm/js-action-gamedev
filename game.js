@@ -101,8 +101,8 @@ const Game = {
   frameCount: 0,
 
   resize() {
-    const h = window.innerHeight;
-    const w = window.innerWidth;
+    const h = 720;
+    const w = 720;
 
     canvas.height = Math.floor(h / PIXELART_SCALE_FACTOR);
     canvas.width = Math.floor(w / PIXELART_SCALE_FACTOR);
@@ -112,6 +112,18 @@ const Game = {
 
     this.canvasHeight = h;
     this.canvasWidth = w;
+
+    UI_LAYER.setAttribute('style', `
+      position: absolute;
+
+      width: ${canvas.width * PIXELART_SCALE_FACTOR}px;
+      height: ${canvas.height * PIXELART_SCALE_FACTOR}px;
+
+      top: ${canvas.offsetTop}px;
+      left: ${canvas.offsetLeft}px;
+
+      pointer-events: none;
+    `);
   },
 
   run(context) {

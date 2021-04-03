@@ -2,50 +2,55 @@
 <html lang="en">
 
 <head>
-	<meta charset="UTF-8">
-	<title>sprite-based gamedev</title>
-	<style>
-		* {
-			margin: 0;
-			padding: 0;
-		}
+    <meta charset="UTF-8">
+    <title>sprite-based gamedev</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
 
-    @font-face {
-      font-family: 'DungeonFont';
-      src:  url('assets/DungeonFont.woff2') format('woff2'),
+        @font-face {
+            font-family: 'DungeonFont';
+            src:  url('assets/DungeonFont.woff2') format('woff2'),
             url('assets/DungeonFont.woff') format('woff');
-      font-weight: normal;
-      font-style: normal;
-      font-display: swap;
-    }
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
 
-    body {
-      font: 32px 'DungeonFont';
-      overflow: hidden;
-    }
+        body {
+            font: 32px 'DungeonFont';
+            overflow: hidden;
+            background-color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
 
-		canvas {
-			display: block;
-			image-rendering: -moz-crisp-edges;
-			image-rendering: -webkit-crisp-edges;
-			image-rendering: pixelated;
-			/* image-rendering: crisp-edges; */
-		}
-	</style>
+        canvas {
+            display: block;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-crisp-edges;
+            image-rendering: pixelated;
+            /* image-rendering: crisp-edges; */
+        }
+    </style>
 </head>
 
 <body>
-	<canvas id="game-canvas"></canvas>
+<canvas id="game-canvas"></canvas>
 
-	<script src="config.js"></script>
-	<script src="quadtree.js"></script>
-	<script src="utils.js"></script>
-	<script src="namegen.js"></script>
-	<script src="engine.js"></script>
-	<script src="terrain.js"></script>
-	<script src="ui.js"></script>
-	<script src="classes.js"></script>
-	<script src="game.js"></script>
+<script src="config.js"></script>
+<script src="quadtree.js"></script>
+<script src="utils.js"></script>
+<script src="namegen.js"></script>
+<script src="engine.js"></script>
+<script src="terrain.js"></script>
+<script src="ui.js"></script>
+<script src="classes.js"></script>
+<script src="game.js"></script>
 </body>
 
 </html>

@@ -2,15 +2,7 @@
 const UI_LAYER = document.createElement('div');
 
 UI_LAYER.setAttribute('style', `
-  position: absolute;
-
-  width: ${window.innerWidth}px;
-  height: ${window.innerHeight}px;
-
-  top: ${canvas.offsetTop}px;
-  left: ${canvas.offsetLeft}px;
-
-  pointer-events: none;
+  display: none;
 `);
 
 document.body.appendChild(UI_LAYER);
@@ -21,7 +13,7 @@ class PlayerUI extends UIElement {
   constructor(data) {
     super(data);
 
-    this._cachedData = data;
+     this._cachedData = data;
 
     this._updateDomInstance = this._initDomInstance();
     this._updateDomInstance(data);
