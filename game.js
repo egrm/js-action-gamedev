@@ -113,7 +113,17 @@ const Game = {
     this.canvasHeight = h;
     this.canvasWidth = w;
 
-    this.canvasOffset = new v2({x: canvas.offsetLeft, y: canvas.offsetTop});
+    UI_LAYER.setAttribute('style', `
+      position: absolute;
+
+      width: ${canvas.width * PIXELART_SCALE_FACTOR}px;
+      height: ${canvas.height * PIXELART_SCALE_FACTOR}px;
+
+      top: ${canvas.offsetTop}px;
+      left: ${canvas.offsetLeft}px;
+
+      pointer-events: none;
+    `);
   },
 
   run(context) {

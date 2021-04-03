@@ -2,15 +2,7 @@
 const UI_LAYER = document.createElement('div');
 
 UI_LAYER.setAttribute('style', `
-  position: absolute;
-
-  width: ${canvas.width * PIXELART_SCALE_FACTOR}px;
-  height: ${canvas.height * PIXELART_SCALE_FACTOR}px;
-
-  top: ${canvas.offsetTop}px;
-  left: ${canvas.offsetLeft}px;
-
-  pointer-events: none;
+  display: none;
 `);
 
 document.body.appendChild(UI_LAYER);
