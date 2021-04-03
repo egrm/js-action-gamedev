@@ -79,10 +79,10 @@ Input.listenForEvents = function (keys) {
   window.addEventListener('keydown', this._onKeyDown.bind(this));
   window.addEventListener('keyup', this._onKeyUp.bind(this));
 
-  canvas.addEventListener('mousemove', this._onMouseMove.bind(this));
+  window.addEventListener('mousemove', this._onMouseMove.bind(this));
   
-  canvas.addEventListener('mousedown', this._onMouseDown.bind(this));
-  canvas.addEventListener('mouseup', this._onMouseUp.bind(this));
+  window.addEventListener('mousedown', this._onMouseDown.bind(this));
+  window.addEventListener('mouseup', this._onMouseUp.bind(this));
 
   keys.forEach(function (key) {
     this._keys[key] = false;

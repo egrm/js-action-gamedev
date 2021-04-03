@@ -112,6 +112,8 @@ const Game = {
 
     this.canvasHeight = h;
     this.canvasWidth = w;
+
+    this.canvasOffset = new v2({x: canvas.offsetLeft, y: canvas.offsetTop});
   },
 
   run(context) {

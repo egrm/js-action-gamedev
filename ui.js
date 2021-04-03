@@ -4,8 +4,8 @@ const UI_LAYER = document.createElement('div');
 UI_LAYER.setAttribute('style', `
   position: absolute;
 
-  width: ${window.innerWidth}px;
-  height: ${window.innerHeight}px;
+  width: ${canvas.width * PIXELART_SCALE_FACTOR}px;
+  height: ${canvas.height * PIXELART_SCALE_FACTOR}px;
 
   top: ${canvas.offsetTop}px;
   left: ${canvas.offsetLeft}px;
@@ -21,7 +21,7 @@ class PlayerUI extends UIElement {
   constructor(data) {
     super(data);
 
-    this._cachedData = data;
+     this._cachedData = data;
 
     this._updateDomInstance = this._initDomInstance();
     this._updateDomInstance(data);
