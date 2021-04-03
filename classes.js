@@ -172,7 +172,7 @@ class Player extends Creature {
 
     const deltaSpeed = delta * this.speed;
 
-    this.direction = v2.subtract(v2.subtract(Input.mousePosition, Game.canvasOffset), player.position).asNormal;
+    this.direction = v2.subtract(Input.mousePosition, player.position).asNormal;
 
     let movement = new v2({x: 0, y: 0});
 

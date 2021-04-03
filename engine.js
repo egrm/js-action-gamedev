@@ -116,7 +116,7 @@ Input.isDown = function (keyCode) {
 Input._onMouseMove = function (event) {
   const {clientX: x, clientY: y} = event;
 
-  Input.mousePosition = new v2({x: x / PIXELART_SCALE_FACTOR, y: y / PIXELART_SCALE_FACTOR});
+  Input.mousePosition = new v2({x: (x - canvas.offsetLeft) / PIXELART_SCALE_FACTOR, y: (y - canvas.offsetTop) / PIXELART_SCALE_FACTOR});
 }
 
 Input._onMouseDown = function (event) {
