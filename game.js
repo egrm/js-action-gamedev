@@ -99,6 +99,7 @@ const Game = {
   canvasHeight: window.innerHeight,
   canvasWidth: window.innerWidth,
   frameCount: 0,
+  paused: false,
 
   resize() {
     const h = window.innerHeight;
@@ -178,20 +179,29 @@ const Game = {
   },
 
   tick(elapsed) {
-    // clear previous frame
-    this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+    if (!this.paused) {
+      // clear previous frame
+      this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
 
-    // compute delta time in seconds -- also cap it
-    let delta = (elapsed - this._previousElapsed) / 1000;
-    delta = Math.min(delta, 0.25); // maximum delta of 250 ms
+      // compute delta time in seconds -- also cap it
+      let delta = (elapsed - this._previousElapsed) / 1000;
+      delta = Math.min(delta, 0.25); // maximum delta of 250 ms
+
+      this.update(delta);
+      this.render();
+    }
+
     this._previousElapsed = elapsed;
-
-    this.update(delta);
-    this.render();
-
     window.requestAnimationFrame(this.tick.bind(this));
   },
 
+  pause() {
+    this.paused = true;
+  },
+
+  resume() {
+    this.paused = false;
+  },
 
   load() {
     // load all the assets
