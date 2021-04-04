@@ -109,6 +109,7 @@ class Dialog extends UIElement {
     super(dialogRoot);
 
     this.dialogData = dialogRoot;
+    this.selectedOption = 0;
   }
 
   keyPressHandler(event) {
@@ -126,13 +127,84 @@ class Dialog extends UIElement {
   }
 
   rollOption(n) {
+    if (n > 0) {
+      this.selectedOption = (this.selectedOption + n) % this.dialogData.options.length;
+    } else {
+      this.selectedOption += n;
+      if (this.selectedOption < 0) {
+        this.selectedOption = this.dialogData.options.length - 1;
+      }
+    }
+
+    const optionsNode = this.element.querySelector('.dialog-options');
+    optionsNode.innerHTML = '';
+
+    this.dialogData.options.forEach((option, index) => {
+      const optionElement = document.createElement('div');
+      optionElement.innerHTML = `
+        <span ${index === this.selectedOption ? '' : 'style="visibility:hidden;"'}>*</span>
+        ${option.optionText}
+      `;
+      optionsNode.appendChild(optionElement);
+    });
+
   }
 
   selectOption() {
+    const option = this.dialogData.options[this.selectedOption];
+    this.dialogData = option;
+    if (option.onSelect) {
+      option.onSelect.call(option);
+    }
+
+    // TODO: if option has nested options, process it here
   }
 
   _initDomInstance() {
+    const defaultTransition = 'translate(-50%, -50%)';
     this.element = document.createElement('div');
+    this.element.setAttribute('style', `
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: ${defaultTransition} scale(0);
+      color: #eee;
+      background-color: #000;
+      width: 300px;
+      padding: 8px 16px;
+      font-size: 20px;
+    `);
+    UI_LAYER.appendChild(this.element);
+    requestAnimationFrame(() => {
+      this.element.style.transition = '0.3s';
+      this.element.style.transform = defaultTransition;
+    });
+
+    const textNode = document.createElement('div');
+    textNode.className = 'dialog-text';
+    textNode.setAttribute('style', `
+      margin-bottom: 8px;
+    `);
+    textNode.innerHTML = this.dialogData.text;
+    this.element.appendChild(textNode);
+
+    const optionsNode = document.createElement('div');
+    optionsNode.className = 'dialog-options';
+    optionsNode.setAttribute('style', `
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: space-between;
+    `);
+    this.element.appendChild(optionsNode);
+
+    this.dialogData.options.forEach((option, index) => {
+      const optionElement = document.createElement('div');
+      optionElement.innerHTML = `
+        ${index === this.selectedOption ? '*' : ''}
+        ${option.optionText}
+      `;
+      optionsNode.appendChild(optionElement);
+    });
 
     this._boundHandler = this.keyPressHandler.bind(this);
     document.addEventListener('keydown', this._boundHandler);

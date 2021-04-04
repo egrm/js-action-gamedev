@@ -85,6 +85,27 @@ const checkProjectiles = () => {
           const dealtDamage = enemy.dealDamage(bulletDamage);
 
           player.score += dealtDamage;
+
+          // TODO
+          if (player.score >= 100 && !Game.testDialogShown) {
+            Game.testDialogShown = true;
+            let dialog;
+            dialog = new Dialog({
+              text: 'And if you don\'t believe me, well...\n',
+              options: [{
+                optionText: 'Silence, wench!',
+                onSelect: () => {
+                  dialog.hide();
+                }
+              }, {
+                optionText: 'Me horny',
+                onSelect: () => {
+                  dialog.hide();
+                }
+              }]
+            });
+            dialog.show();
+          }
         }
       });
     }
