@@ -325,6 +325,7 @@ class Projectile extends Entity {
     this.speed = data.speed || PROJECTILE_SPEED;
     this.direction = data.creature.direction;
     this.center = new v2({x: this.size / 2, y: this.size / 2});
+    this.distanceTravelled = 0;
 
     const moveBy = this.size / 2;
     this.position = v2.subtract(data.creature.centerPosition, { x: moveBy, y: moveBy });
@@ -354,8 +355,8 @@ class Projectile extends Entity {
     // self-delete if flies off the terrain
     const { width: terrainWidth, height: terrainHeight } = Terrain;
 
-    const distanceTravelled = v2.subtract(this.position, this.startPosition).length;
-    if (distanceTravelled >= PROJECTILE_MAX_DISTANCE) {
+    this.distanceTravelled += deltaSpeed;
+    if (this.distanceTravelled >= PROJECTILE_MAX_DISTANCE) {
       projectiles.delete(this);
     }
 
