@@ -195,15 +195,13 @@ class Player extends Creature {
 
     movement = v2.normalize(movement);
 
-
-
     const isMoving = movement.length !== 0;
 
     if (isMoving) {
       this.state = CHARACTER_STATES.MOVING;
 
       const moved = v2.scale(movement, deltaSpeed);
-      const newPosition = v2.add(this.position, moved);
+      const newPosition = v2.addBounded(this.position, moved);
 
       this.position = newPosition;
     } else {
@@ -304,7 +302,7 @@ class Enemy extends Creature {
         const newDirection = vectorToPlayer.asNormal;
         
         const movement = v2.scale(newDirection, deltaSpeed);
-        const newPosition = v2.add(this.position, movement);
+        const newPosition = v2.addBounded(this.position, movement);
 
         this.direction = newDirection;
         this.position = newPosition;
@@ -351,7 +349,7 @@ class Projectile extends Entity {
     super.update(delta);
 
     const deltaSpeed = delta * this.speed;
-    this.position = v2.add(this.position, v2.scale(this.direction, deltaSpeed));
+    this.position = v2.addBounded(this.position, v2.scale(this.direction, deltaSpeed));
 
     // self-delete if flies off the terrain
     const { width: terrainWidth, height: terrainHeight } = Terrain;

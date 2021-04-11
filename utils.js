@@ -115,7 +115,33 @@ class v2 {
   }
 
   static subtract(first, second) {
-    return new v2({x: first.x - second.x, y: first.y - second.y});
+    return v2.add(first, new v2({
+      x: -second.x,
+      y: -second.y
+    }));
+  }
+
+  static addBounded(first, second) {
+    let x = first.x + second.x;
+    if (x < 0) {
+      x = CANVAS_WIDTH / PIXELART_SCALE_FACTOR;
+    } else if (x > CANVAS_WIDTH / PIXELART_SCALE_FACTOR) {
+      x = 0;
+    }
+
+    let y = first.y + second.y;
+    if (y < 0) {
+      y = CANVAS_HEIGHT / PIXELART_SCALE_FACTOR;
+    } else if (y > CANVAS_HEIGHT / PIXELART_SCALE_FACTOR) {
+      y = 0;
+    }
+
+    return new v2({ x, y });
+  }
+
+  // TODO
+  static subtractBounded(first, second) {
+    return 0;
   }
 }
 

@@ -87,7 +87,7 @@ const checkProjectiles = () => {
           player.score += dealtDamage;
 
           // TODO
-          if (player.score >= 100 && !Game.testDialogShown) {
+          if (player.score >= 10000 && !Game.testDialogShown) {
             Game.testDialogShown = true;
             let dialog;
             dialog = new Dialog({
@@ -123,8 +123,8 @@ const Game = {
   paused: false,
 
   resize() {
-    const h = 720;
-    const w = 720;
+    const h = CANVAS_HEIGHT;
+    const w = CANVAS_WIDTH;
 
     canvas.height = Math.floor(h / PIXELART_SCALE_FACTOR);
     canvas.width = Math.floor(w / PIXELART_SCALE_FACTOR);
